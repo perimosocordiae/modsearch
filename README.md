@@ -1,7 +1,5 @@
 # modsearch
 
-Search docstrings of installed Python modules.
-
 Start by indexing all the modules accessible to your Python interpreter:
 
     python modsearch.py --index-all --verbose
