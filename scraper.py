@@ -1,4 +1,6 @@
 import importlib
+import types
+import os.path
 from collections import Hashable, deque
 
 
@@ -14,6 +16,7 @@ def scrape_docstrings(*root_modules):
   docs = {}
   seen = set()
   queue = deque([(m, m.__name__) for m in root_modules])
+  root_dirs = set(os.path.dirname(m.__file__) for m in root_modules)
   while queue:
     mod, name = queue.popleft()
     # have we seen it before?
@@ -36,6 +39,11 @@ def scrape_docstrings(*root_modules):
     for k,v in mod.__dict__.iteritems():
       if k.startswith('__') or not isinstance(v, Hashable):
         continue
+      if isinstance(v, types.ModuleType):
+        # Make sure it's a submodule of one of the roots.
+        if (not hasattr(v, '__file__') or
+            not any(v.__file__.startswith(md) for md in root_dirs)):
+          continue
       field_name = name + '.' + k
       queue.append((v, field_name))
   return docs.iteritems()
