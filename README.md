@@ -16,6 +16,14 @@ Result 4 (16.7065): tornado.httpserver.HTTPConnection
 Result 5 (16.6473): pip.download.HTTPBasicAuth
 ```
 
+## Installation
+
+Eventually, I'll push this to PyPI for automated installs/upgrades.
+Until then, just clone this directory and install the one dependency:
+
+    git clone https://github.com/perimosocordiae/modsearch.git
+    pip install whoosh
+
 ## Usage
 
 ```
