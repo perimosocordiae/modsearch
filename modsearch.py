@@ -1,9 +1,9 @@
 import os.path
-from collections import Hashable
 from whoosh.highlight import UppercaseFormatter
 from whoosh.index import create_in, open_dir
 from whoosh.fields import Schema, TEXT, ID, KEYWORD
 from whoosh.qparser import QueryParser
+from scraper import scrape_docstrings
 
 
 def get_index(dirpath):
@@ -14,7 +14,8 @@ def get_index(dirpath):
   print 'Creating new index in', dirpath
   if not os.path.exists(dirpath):
     os.mkdir(dirpath)
-  schema = Schema(name=ID(stored=True), doc=TEXT(stored=True),
+  schema = Schema(name=ID(stored=True, unique=True),
+                  doc=TEXT(stored=True),
                   modulepath=KEYWORD(commas=True))
   return create_in(dirpath, schema)
 
@@ -22,9 +23,9 @@ def get_index(dirpath):
 def index_docstrings(mod, ix):
   writer = ix.writer()
   for mpath, doc in scrape_docstrings(mod):
-    writer.add_document(name=unicode(mpath),
-                        doc=unicode(doc),
-                        modulepath=unicode(mpath.replace('.',',')))
+    writer.update_document(name=unicode(mpath),
+                           doc=unicode(doc),
+                           modulepath=unicode(mpath.replace('.',',')))
   writer.commit()
 
 
@@ -42,29 +43,8 @@ def search_docstrings(ix, query_string, verbose=0):
         print r.highlights('doc')
 
 
-def scrape_docstrings(mod, prefix=None, seen=set()):
-  if prefix is None:
-    prefix = mod.__name__
-  if hasattr(mod, '__doc__'):
-    d = mod.__doc__
-    if d and isinstance(d, basestring):
-      yield prefix, d
-  if not hasattr(mod, '__dict__'):
-    return
-  for k,v in vars(mod).iteritems():
-    if k.startswith('__') or not isinstance(v, Hashable):
-      continue
-    try:
-      if v in seen:
-        continue
-    except TypeError:  # Unhashable type
-      continue
-    seen.add(v)
-    for d in scrape_docstrings(v, prefix=prefix+'.'+k, seen=seen):
-      yield d
-
 if __name__ == '__main__':
   import numpy
   ix = get_index('indexdir')
-  # index_docstrings(numpy, ix)
+  index_docstrings(numpy, ix)
   search_docstrings(ix, 'least squares')
