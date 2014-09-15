@@ -8,8 +8,9 @@ Start by indexing all the modules accessible to your Python interpreter:
 
 Then, run queries!
 
-    python modsearch.py "http request"
 ```
+python modsearch.py "http request"
+
 Result 1 (17.8017): tornado.httpclient.HTTPRequest
 Result 2 (16.7368): DocXMLRPCServer.DocXMLRPCRequestHandler.do_GET
 Result 3 (16.7368): DocXMLRPCServer.DocCGIXMLRPCRequestHandler.handle_get
