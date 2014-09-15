@@ -1,7 +1,7 @@
 import os.path
+from whoosh.fields import ID, KEYWORD, Schema, TEXT
 from whoosh.highlight import UppercaseFormatter
 from whoosh.index import create_in, open_dir
-from whoosh.fields import Schema, TEXT, ID, KEYWORD
 from whoosh.qparser import QueryParser
 from scraper import scrape_docstrings
 
