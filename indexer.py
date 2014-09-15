@@ -1,5 +1,4 @@
 import os.path
-import sys
 from whoosh.fields import ID, KEYWORD, Schema, TEXT
 from whoosh.highlight import UppercaseFormatter
 from whoosh.index import create_in, open_dir
@@ -27,16 +26,15 @@ def get_index(dirpath, verbose=False):
 def index_docstrings(ix, *modules, **kwargs):
   writer = ix.writer()
   verbose = kwargs.get('verbose', False)
-  for i, mod in enumerate(modules, start=1):
-    if verbose:
-      sys.stdout.write('\rIndexing %d of %d...' % (i, len(modules)))
-      sys.stdout.flush()
-    for mpath, doc in scrape_docstrings(mod):
-      writer.update_document(name=unicode(mpath),
-                             doc=unicode(doc),
-                             modulepath=unicode(mpath.replace('.',',')))
+  docs = scrape_docstrings(*modules, **kwargs)
   if verbose:
-    print '\rFinished %d of %d. Committing...' % (i, len(modules))
+    print 'Updating index...'
+  for mpath, doc in docs.iteritems():
+    writer.update_document(name=unicode(mpath),
+                           doc=unicode(doc),
+                           modulepath=unicode(mpath.replace('.',',')))
+  if verbose:
+    print 'Committing...'
   writer.commit()
   if verbose:
     print 'Done'
